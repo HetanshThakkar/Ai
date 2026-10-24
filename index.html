@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>College Help Desk Chatbot</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.desk { max-width: 640px; margin: 0 auto; padding: 24px 16px; }
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+header p { margin: 0 0 16px; }
+#log { border: 1px solid #000; height: 380px; overflow-y: auto; padding: 12px; }
+.msg { margin: 0 0 12px; overflow-wrap: anywhere; }
+.msg::before { font-weight: bold; }
+.bot::before { content: "Bot: "; }
+.me::before { content: "You: "; }
+.msg ul { margin: 4px 0 0; padding-left: 20px; }
+.typing { color: #555; }
+.chips { margin: 12px 0; }
+.chips p { margin: 0 0 6px; }
+.chip {
+  font: inherit; font-size: 0.9rem; color: #000; background: #fff;
+  border: 1px solid #000; padding: 3px 10px; margin: 0 6px 6px 0; cursor: pointer;
+}
+.chip:hover { background: #000; color: #fff; }
+form { display: flex; gap: 8px; }
+input[type="text"] {
+  flex: 1; min-width: 0; font: inherit; color: #000; background: #fff;
+  border: 1px solid #000; padding: 8px;
+}
+button.send {
+  font: inherit; color: #fff; background: #000; border: 1px solid #000;
+  padding: 8px 18px; cursor: pointer;
+}
+button:focus-visible, input:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main class="desk">
+  <header>
+    <h1>College Help Desk</h1>
+    <p>Ask a question about the college.</p>
+  </header>
+
+  <div id="log" role="log" aria-live="polite" aria-label="Conversation"></div>
+
+  <div class="chips" id="chips">
+    <p>Quick questions:</p>
+  </div>
+
+  <form id="form" autocomplete="off">
+    <input type="text" id="input" placeholder="Type your question here" aria-label="Type your question" maxlength="200">
+    <button class="send" type="submit">Send</button>
+  </form>
+</main>
+
+<script>
+function getResponse(userInput) {
+  var t = userInput.toLowerCase().trim();
+  var has = function (w) { return t.indexOf(w) !== -1; };
+
+  if (t === "hi" || t === "hello" || t === "hey" || has("good morning") || has("good afternoon") || has("good evening")) {
+    return "Hello! Welcome to the College Help Desk. How can I help you today?";
+  } else if (has("how are you")) {
+    return "I'm doing great, thank you! How can I assist you with college information?";
+  } else if (has("admission") && (has("last date") || has("deadline"))) {
+    return "The last date for admission applications is 30th June. Please apply before the deadline.";
+  } else if (has("admission") || has("apply") || has("enroll")) {
+    return "Admissions are open for all courses. You can apply online through the college website or visit the admission office with your documents.";
+  } else if (has("document")) {
+    return "Documents required: 10th and 12th marksheets, leaving certificate, ID proof, passport-size photographs and a caste certificate (if applicable).";
+  } else if (has("course") || has("branch") || has("program")) {
+    return "We offer B.Tech (Computer, IT, Mechanical, Civil, Electrical), BCA, MCA, BBA and MBA programs.";
+  } else if (has("duration")) {
+    return "B.Tech is 4 years, BCA and BBA are 3 years, and MCA and MBA are 2 years.";
+  } else if (has("eligibility") || has("eligible")) {
+    return "For B.Tech, you need 12th pass with Physics, Chemistry and Maths. For BCA/BBA, 12th pass in any stream. For MCA/MBA, a bachelor's degree.";
+  } else if (has("fee") || has("fees") || has("cost")) {
+    return "Approximate annual fees: B.Tech Rs. 90,000, BCA/BBA Rs. 50,000, MCA/MBA Rs. 70,000. Please contact the accounts office for exact details.";
+  } else if (has("scholarship")) {
+    return "Scholarships are available for meritorious and economically weaker students. Apply through the state scholarship portal after admission.";
+  } else if (has("placement") || has("job") || has("package")) {
+    return "Our placement cell has a record of 85% placements. The average package is 4.5 LPA and the highest package is 18 LPA. Top recruiters include TCS, Infosys, Wipro and Accenture.";
+  } else if (has("library")) {
+    return "The library is open from 9 AM to 6 PM, Monday to Saturday, with over 20,000 books.";
+  } else if (has("hostel")) {
+    return "Separate hostels for boys and girls are available with Wi-Fi, mess and 24x7 security. Hostel fees are about Rs. 60,000 per year.";
+  } else if (has("canteen") || has("food") || has("mess")) {
+    return "The canteen serves breakfast, lunch and snacks from 8 AM to 5 PM at student-friendly prices.";
+  } else if (has("transport") || has("bus")) {
+    return "College buses run from all major city points. Bus pass costs about Rs. 12,000 per year.";
+  } else if (has("sports") || has("ground")) {
+    return "We have grounds for cricket, football and volleyball, along with indoor games, a gym and a yearly sports fest.";
+  } else if (has("wifi") || has("wi-fi") || has("internet")) {
+    return "Free high-speed Wi-Fi is available throughout the campus.";
+  } else if (has("exam") || has("result")) {
+    return "Semester exams are held twice a year, in November and April. Results are published on the college portal within 30 days.";
+  } else if (has("timing") || has("time") || has("hours")) {
+    return "College timings are 9:00 AM to 4:30 PM, Monday to Saturday. Sunday is a holiday.";
+  } else if (has("holiday") || has("vacation")) {
+    return "Summer vacation is in May-June and Diwali vacation is in November.";
+  } else if (has("contact") || has("phone") || has("email") || has("number")) {
+    return "You can reach us at 0281-1234567 or email info@democollege.edu.in.";
+  } else if (has("address") || has("location") || has("where")) {
+    return "Our campus is located on the Rajkot-Morbi Highway, Rajkot, Gujarat.";
+  } else if (has("thank")) {
+    return "You're welcome! Feel free to ask if you have more questions.";
+  } else if (t === "bye" || t === "exit" || t === "quit") {
+    return "Goodbye! Have a great day.";
+  } else {
+    return "Sorry, I did not understand that. You can ask me about admission, courses, fees, scholarships, placements, library, hostel, exams or contact details.";
+  }
+}
+
+var log = document.getElementById("log");
+var input = document.getElementById("input");
+var chips = document.getElementById("chips");
+
+function addMessage(text, who) {
+  var div = document.createElement("div");
+  div.className = "msg " + who;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+function ask(text) {
+  text = text.trim();
+  if (!text) return;
+  addMessage(text, "me");
+  var wait = addMessage("Typing...", "bot typing");
+  setTimeout(function () {
+    wait.remove();
+    addMessage(getResponse(text), "bot");
+  }, 450);
+}
+
+var topics = ["Admission", "Courses", "Fees", "Scholarships", "Placements", "Library", "Hostel", "Exams", "Timings", "Contact"];
+topics.forEach(function (name) {
+  var b = document.createElement("button");
+  b.type = "button";
+  b.className = "chip";
+  b.textContent = name;
+  b.addEventListener("click", function () { ask(name); });
+  chips.appendChild(b);
+});
+
+document.getElementById("form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  ask(input.value);
+  input.value = "";
+  input.focus();
+});
+
+var welcome = addMessage("Hello! Welcome to the College Help Desk. You can ask me about:", "bot");
+var list = document.createElement("ul");
+[
+  "Admission (how to apply, last date, documents required)",
+  "Courses (courses offered, duration, eligibility)",
+  "Fees and scholarships",
+  "Placements (packages, recruiters)",
+  "Facilities (library, hostel, canteen, transport, sports, Wi-Fi)",
+  "Exams and results",
+  "College timings and holidays",
+  "Contact details and address"
+].forEach(function (item) {
+  var li = document.createElement("li");
+  li.textContent = item;
+  list.appendChild(li);
+});
+welcome.appendChild(list);
+</script>
+</body>
+</html>
